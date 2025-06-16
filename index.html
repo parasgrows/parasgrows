@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paras Enterprises | Integrated Security & Water Solutions</title>
+    <!-- Chosen Palette: Warm Neutrals & Slate Blue -->
+    <!-- Application Structure Plan: A tab-based, single-page application structure was chosen to clearly separate and prioritize the two core business pillars: Surveillance and Water Treatment. This design allows users to immediately grasp the company's dual expertise and explore each area in depth without being overwhelmed. The user flow is simple: select a tab to load the relevant content section dynamically. This approach is highly usable as it avoids scrolling through unrelated information, making it easy for a potential client interested in only one service to find what they need. Key interactions include tab-based navigation to switch between the primary service sections and an interactive comparison feature within the water treatment section to highlight its unique selling proposition effectively. -->
+    <!-- Visualization & Content Choices:
+        1.  Report Info: Turn-Key Surveillance process.
+            Goal: Organize & Inform.
+            Viz/Method: A styled HTML/CSS process flow diagram.
+            Interaction: Static visual representation for clarity.
+            Justification: A visual flow is more intuitive for understanding a multi-step process like "turn-key" projects than a simple text list. It reinforces the comprehensive nature of the service.
+            Library/Method: HTML + Tailwind CSS.
+        2.  Report Info: Key features of surveillance (AI, Cloud, etc.).
+            Goal: Inform.
+            Viz/Method: Icon-based feature list.
+            Interaction: Hover effects on icons for engagement.
+            Justification: Icons provide quick visual cues and break up text, making the features more scannable and memorable.
+            Library/Method: HTML + Tailwind CSS + Unicode characters.
+        3.  Report Info: Hard Water Softener USP (What we do vs. others).
+            Goal: Compare & Persuade.
+            Viz/Method: An interactive side-by-side comparison table.
+            Interaction: Clicking on a feature reveals a checkmark for "What we do" and a cross for "What others do", providing a clear visual contrast.
+            Justification: This interactive comparison gamifies the information slightly, making it more engaging and powerfully demonstrating the product's superiority over traditional methods.
+            Library/Method: HTML + Tailwind CSS + JavaScript.
+        4.  Report Info: High TDS and Hardness treatment capability.
+            Goal: Inform & Impress.
+            Viz/Method: A horizontal bar chart.
+            Interaction: Animated bars on load, tooltips on hover.
+            Justification: A bar chart provides a strong visual representation of the product's high-performance capabilities, making the impressive numbers (TDS up to 12,000) tangible and easy to grasp.
+            Library/Method: Chart.js (Canvas).
+        5.  LLM Feature: Security Needs Advisor.
+            Goal: Provide tailored initial advice based on user input.
+            Viz/Method: Text input, button, and dynamic text output.
+            Interaction: User inputs text, clicks button, AI generates advice.
+            Justification: Enhances user engagement by offering direct, relevant information, showcasing AI integration, and helping users articulate their needs.
+            Library/Method: Gemini API (fetch) + JavaScript.
+        6.  LLM Feature: Water Quality Impact Explainer.
+            Goal: Educate users on the effects of water issues and Paras' solution.
+            Viz/Method: Text input, button, and dynamic text output.
+            Interaction: User inputs water issues, clicks button, AI explains impact and solution.
+            Justification: Directly addresses common user pain points, validates the need for water treatment, and positions Paras Enterprises as the solution.
+            Library/Method: Gemini API (fetch) + JavaScript.
+        -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .tab-active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            max-height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+                max-height: 350px;
+            }
+        }
+        .comparison-item .icon-placeholder {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .comparison-item .icon-placeholder .front,
+        .comparison-item .icon-placeholder .back {
+            backface-visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .comparison-item.flipped .icon-placeholder {
+            transform: rotateY(180deg);
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, .1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <!-- Header -->
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Paras Enterprises</h1>
+            <p class="mt-2 text-lg text-gray-600">Delivering Excellence in Security and Water Purity</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="mb-8 border-b border-gray-200">
+            <nav class="flex justify-center -mb-px space-x-6 md:space-x-8" aria-label="Tabs">
+                <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 tab-active" data-tab="surveillance">
+                    Turn-Key Surveillance
+                </button>
+                <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="water">
+                    Hard Water Treatment
+                </button>
+                 <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm md:text-base border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" data-tab="about">
+                    About Us
+                </button>
+            </nav>
+        </div>
+
+        <!-- Content Sections -->
+        <main>
+            <!-- Surveillance Section -->
+            <section id="surveillance" class="content-section active">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Comprehensive Turn-Key Surveillance Solutions</h2>
+                    <p class="text-gray-600 mb-6">We provide end-to-end security ecosystems, not just equipment. From initial consultation to ongoing maintenance, Paras Enterprises is your strategic partner in securing your assets, ensuring operational continuity, and providing complete peace of mind.</p>
+
+                    <div class="mb-8">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Our Seamless Turn-Key Process</h3>
+                        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 md:space-x-4">
+                             <div class="flex items-center flex-col text-center w-full md:w-1/5">
+                                <div class="flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full text-2xl font-bold">1</div>
+                                <p class="mt-2 font-semibold">Consult & Design</p>
+                                <p class="text-sm text-gray-500">Custom system design based on your needs and budget.</p>
+                            </div>
+                            <div class="hidden md:block flex-1 h-1 bg-gray-200 rounded-full"></div>
+                             <div class="flex items-center flex-col text-center w-full md:w-1/5">
+                                <div class="flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full text-2xl font-bold">2</div>
+                                <p class="mt-2 font-semibold">Supply & Install</p>
+                                <p class="text-sm text-gray-500">Professional installation and configuration.</p>
+                            </div>
+                            <div class="hidden md:block flex-1 h-1 bg-gray-200 rounded-full"></div>
+                             <div class="flex items-center flex-col text-center w-full md:w-1/5">
+                                <div class="flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full text-2xl font-bold">3</div>
+                                <p class="mt-2 font-semibold">Integrate AI</p>
+                                <p class="text-sm text-gray-500">Intelligent analytics for proactive threat detection.</p>
+                            </div>
+                             <div class="hidden md:block flex-1 h-1 bg-gray-200 rounded-full"></div>
+                            <div class="flex items-center flex-col text-center w-full md:w-1/5">
+                                <div class="flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-full text-2xl font-bold">4</div>
+                                <p class="mt-2 font-semibold">Maintain & Support</p>
+                                <p class="text-sm text-gray-500">Ensuring your system runs smoothly long-term.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Core Technology & Services</h3>
+                            <ul class="space-y-4">
+                                <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><div><strong class="font-semibold">IP & CCTV Cameras:</strong> High-resolution, reliable cameras forming the foundation of our custom-designed systems.</div></li>
+                                <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><div><strong class="font-semibold">Advanced Video Analytics:</strong> Intelligent software that reduces the burden on security personnel by providing actionable insights.</div></li>
+                                <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><div><strong class="font-semibold">Artificial Intelligence (AI):</strong> Proactive threat identification and smart monitoring with unparalleled accuracy and efficiency.</div></li>
+                                <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1">✓</span><div><strong class="font-semibold">Cloud-Based Solutions:</strong> Scalable, flexible, and cost-effective surveillance accessible from anywhere, at any time.</div></li>
+                            </ul>
+                        </div>
+                         <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3">Why Our Approach Works</h3>
+                            <p class="text-gray-600">By managing the entire lifecycle of your security system, we eliminate complexity and deliver a solution that is perfectly tailored to your environment. You get a single point of accountability and a system guaranteed to perform.</p>
+                        </div>
+                    </div>
+
+                    <!-- AI-Powered Security Assessment Feature -->
+                    <div class="mt-10 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                        <h3 class="text-2xl font-semibold text-blue-800 mb-4 text-center">✨ Security Needs Advisor</h3>
+                        <p class="text-gray-700 mb-4 text-center max-w-2xl mx-auto">Tell us about your security needs (e.g., "securing a small retail shop," "monitoring a large industrial site," "home security with pet monitoring"), and our AI will suggest key considerations for your surveillance system.</p>
+                        <textarea id="securityInput" class="w-full p-3 border border-blue-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800" rows="4" placeholder="Describe your security needs here..."></textarea>
+                        <button id="getSecurityAdviceBtn" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out flex items-center justify-center">
+                            <span id="securitySpinner" class="loading-spinner hidden"></span>
+                            <span>Get AI Security Advice</span>
+                        </button>
+                        <div id="securityOutput" class="mt-6 p-4 bg-blue-100 rounded-md text-gray-800 border border-blue-300 hidden"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Water Treatment Section -->
+            <section id="water" class="content-section">
+                 <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Revolutionary Zero-Maintenance Hard Water Treatment</h2>
+                    <p class="text-gray-600 mb-6">Discover our "fix and forget" hard water softening solution. Using an innovative, natural vortex process, we treat hard water without chemicals, salt, or electricity, protecting your appliances and saving you money.</p>
+
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3">What Others Do</h3>
+                            <p class="text-gray-600">Traditional systems rely on salt, chemicals, and electricity. They require constant maintenance, waste water during regeneration, and often have high operational costs.</p>
+                        </div>
+                        <div class="bg-blue-50 p-6 rounded-lg border border-blue-200">
+                             <h3 class="text-xl font-semibold text-blue-800 mb-3">What We Do</h3>
+                            <p class="text-gray-700">Our system uses a natural vortex to physically restructure hardness minerals (magnesium and calcium). This prevents limescale formation permanently without altering TDS levels or adding anything to your water.</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Unmatched Benefits: A Quick Comparison</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
+                        <div class="comparison-item bg-gray-100 p-4 rounded-lg">
+                            <div class="icon-placeholder h-10 w-10 mx-auto mb-2 flex items-center justify-center text-3xl">
+                                <div class="front">⚙️</div><div class="back text-green-500">✓</div>
+                            </div><p class="font-medium text-sm">No Maintenance</p>
+                        </div>
+                        <div class="comparison-item bg-gray-100 p-4 rounded-lg">
+                             <div class="icon-placeholder h-10 w-10 mx-auto mb-2 flex items-center justify-center text-3xl">
+                                <div class="front">🧪</div><div class="back text-green-500">✓</div>
+                            </div><p class="font-medium text-sm">No Chemicals</p>
+                        </div>
+                        <div class="comparison-item bg-gray-100 p-4 rounded-lg">
+                            <div class="icon-placeholder h-10 w-10 mx-auto mb-2 flex items-center justify-center text-3xl">
+                                <div class="front">💧</div><div class="back text-green-500">✓</div>
+                            </div><p class="font-medium text-sm">No Water Waste</p>
+                        </div>
+                        <div class="comparison-item bg-gray-100 p-4 rounded-lg">
+                            <div class="icon-placeholder h-10 w-10 mx-auto mb-2 flex items-center justify-center text-3xl">
+                                <div class="front">🧂</div><div class="back text-green-500">✓</div>
+                            </div><p class="font-medium text-sm">No Salt</p>
+                        </div>
+                        <div class="comparison-item bg-gray-100 p-4 rounded-lg">
+                            <div class="icon-placeholder h-10 w-10 mx-auto mb-2 flex items-center justify-center text-3xl">
+                                <div class="front">⚡️</div><div class="back text-green-500">✓</div>
+                            </div><p class="font-medium text-sm">No Electricity</p>
+                        </div>
+                    </div>
+
+                     <div class="mt-10">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Engineered for Extreme Conditions</h3>
+                         <p class="text-center text-gray-600 max-w-2xl mx-auto mb-4">Our technology is proven to perform where others fail, efficiently treating water with extremely high levels of Total Dissolved Solids (TDS) and hardness.</p>
+                        <div class="chart-container">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- AI-Powered Water Quality Impact Feature -->
+                    <div class="mt-10 p-6 bg-green-50 rounded-lg border border-green-200">
+                        <h3 class="text-2xl font-semibold text-green-800 mb-4 text-center">✨ Water Quality Impact Explainer</h3>
+                        <p class="text-gray-700 mb-4 text-center max-w-2xl mx-auto">Describe your water quality concerns (e.g., "my tap water feels sticky," "limescale in my kettle," "faded laundry," "dry skin after bathing"), and our AI will explain the potential impact and how our solution can help.</p>
+                        <textarea id="waterInput" class="w-full p-3 border border-green-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-800" rows="4" placeholder="Describe your water quality concerns here..."></textarea>
+                        <button id="getWaterImpactBtn" class="mt-4 w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 ease-in-out flex items-center justify-center">
+                            <span id="waterSpinner" class="loading-spinner hidden"></span>
+                            <span>Explain Water Impact</span>
+                        </button>
+                        <div id="waterOutput" class="mt-6 p-4 bg-green-100 rounded-md text-gray-800 border border-green-300 hidden"></div>
+                    </div>
+
+                </div>
+            </section>
+            
+            <!-- About Us Section -->
+            <section id="about" class="content-section">
+                <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm">
+                     <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Our Foundation & Commitment</h2>
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="md:col-span-1">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-2">Meet Our Founder</h3>
+                            <h4 class="text-xl font-bold text-blue-600 mb-2">Mr. Ramesh Raju</h4>
+                            <p class="text-gray-600 mb-4">A trailblazing first-generation entrepreneur with a 20-year professional career and a 7-year entrepreneurial odyssey. His unwavering passion lies in delivering meaningful solutions that uplift society.</p>
+                             <p class="text-gray-600">An adept multilingual communicator, he connects effortlessly with people from all backgrounds.</p>
+                        </div>
+                        <div class="md:col-span-2 bg-gray-50 p-6 rounded-lg">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Why Choose Paras Enterprises?</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start"><strong class="font-semibold text-blue-600 w-32 shrink-0">Expertise:</strong> Our skilled team ensures expert design, installation, and maintenance for every project.</li>
+                                <li class="flex items-start"><strong class="font-semibold text-blue-600 w-32 shrink-0">Innovation:</strong> We stay ahead of the curve, offering cutting-edge AI, Cloud, and vortex technologies.</li>
+                                <li class="flex items-start"><strong class="font-semibold text-blue-600 w-32 shrink-0">Client-Centric:</strong> We prioritize your satisfaction, working within your budget without compromising quality.</li>
+                                <li class="flex items-start"><strong class="font-semibold text-blue-600 w-32 shrink-0">Responsibility:</strong> Our solutions are cost-effective and environmentally conscious, especially our eco-friendly water softeners.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Our Valued Clientele</h3>
+                        <p class="text-center text-gray-600 mb-6">Our diverse clientele spans homeowners seeking optimal water quality and home security, businesses requiring comprehensive surveillance and efficient water treatment, educational institutions ensuring student safety, healthcare facilities upholding hygiene standards, and industrial sectors optimizing operations through advanced security and water softening solutions across Chennai and its surrounding areas.</p>
+                        <div id="client-logos" class="flex flex-wrap justify-center items-center gap-6 p-4 border border-gray-200 rounded-lg bg-gray-50 min-h-[120px]">
+                            <!-- Please replace these placeholder images with your actual client logo URLs. -->
+                            <!-- Example: <img src="https://yourdomain.com/path/to/your/client_logo_1.png" alt="Client Name 1" class="h-16 object-contain"> -->
+                            <!-- Example: <img src="https://yourdomain.com/path/to/your/client_logo_2.png" alt="Client Name 2" class="h-16 object-contain"> -->
+                            <img src="https://placehold.co/120x60/cbd5e0/4a5568?text=Client+Logo+1" alt="Client Placeholder 1" class="h-16 object-contain">
+                            <img src="https://placehold.co/120x60/cbd5e0/4a5568?text=Client+Logo+2" alt="Client Placeholder 2" class="h-16 object-contain">
+                            <img src="https://placehold.co/120x60/cbd5e0/4a5568?text=Client+Logo+3" alt="Client Placeholder 3" class="h-16 object-contain">
+                            <img src="https://placehold.co/120x60/cbd5e0/4a5568?text=Client+Logo+4" alt="Client Placeholder 4" class="h-16 object-contain">
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+         <footer class="mt-12 text-center text-gray-500">
+            <p>&copy; 2024 Paras Enterprises. All Rights Reserved.</p>
+            <p class="text-sm mt-2">Chennai, India</p>
+            <div class="mt-4 flex justify-center space-x-6">
+                <a href="mailto:parasgrows@gmail.com" class="hover:text-blue-600">Email</a>
+                <a href="tel:+919894214024" class="hover:text-blue-600">Phone</a>
+                <a href="https://www.linkedin.com/in/parasenterprises/" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600">LinkedIn</a>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const sections = document.querySelectorAll('.content-section');
+            let performanceChartInstance = null;
+
+            // LLM Feature elements
+            const securityInput = document.getElementById('securityInput');
+            const getSecurityAdviceBtn = document.getElementById('getSecurityAdviceBtn');
+            const securitySpinner = document.getElementById('securitySpinner');
+            const securityOutput = document.getElementById('securityOutput');
+
+            const waterInput = document.getElementById('waterInput');
+            const getWaterImpactBtn = document.getElementById('getWaterImpactBtn');
+            const waterSpinner = document.getElementById('waterSpinner');
+            const waterOutput = document.getElementById('waterOutput');
+
+            const initPerformanceChart = () => {
+                if (performanceChartInstance) {
+                    performanceChartInstance.destroy();
+                }
+                const ctx = document.getElementById('performanceChart').getContext('2d');
+                performanceChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['TDS Level (ppm)', 'Hardness Level (ppm)'],
+                        datasets: [{
+                            label: 'Our Product\'s Max Capability',
+                            data: [12000, 5000],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(34, 197, 94, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(34, 197, 94, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value, index, values) {
+                                        return value.toLocaleString();
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            label += context.parsed.x.toLocaleString();
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            };
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+
+                    tabs.forEach(item => item.classList.remove('tab-active'));
+                    tab.classList.add('tab-active');
+
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(tabName).classList.add('active');
+
+                    if (tabName === 'water') {
+                        // Delay chart initialization slightly to ensure canvas is visible
+                        setTimeout(initPerformanceChart, 50);
+                    }
+                });
+            });
+
+            const comparisonItems = document.querySelectorAll('.comparison-item');
+            comparisonItems.forEach(item => {
+                 // Pre-flip to show the checkmark on page load
+                setTimeout(() => item.classList.add('flipped'), 500); 
+            });
+
+            // Gemini API Call Function
+            async function callGeminiAPI(prompt, outputElement, spinnerElement) {
+                outputElement.classList.add('hidden');
+                outputElement.innerHTML = '';
+                spinnerElement.classList.remove('hidden');
+
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // Canvas will automatically provide this key at runtime
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const text = result.candidates[0].content.parts[0].text;
+                        outputElement.innerHTML = text.replace(/\n/g, '<br>'); // Replace newlines with <br> for HTML display
+                        outputElement.classList.remove('hidden');
+                    } else {
+                        outputElement.innerHTML = 'Sorry, I could not generate a response. Please try again.';
+                        outputElement.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    outputElement.innerHTML = 'An error occurred while fetching data. Please try again later.';
+                    outputElement.classList.remove('hidden');
+                } finally {
+                    spinnerElement.classList.add('hidden');
+                }
+            }
+
+            // Event Listener for Security Needs Advisor
+            getSecurityAdviceBtn.addEventListener('click', () => {
+                const prompt = `Act as an expert in surveillance systems for Paras Enterprises. A user describes their security needs. Provide key considerations for a comprehensive surveillance system tailored to their scenario. Focus on camera types (wired, wireless, Wi-Fi, 4G, IP), AI capabilities (analytics, proactive detection), and cloud solutions (scalability, remote access). User's needs: ${securityInput.value}.`;
+                callGeminiAPI(prompt, securityOutput, securitySpinner);
+            });
+
+            // Event Listener for Water Quality Impact Explainer
+            getWaterImpactBtn.addEventListener('click', () => {
+                const prompt = `Act as an expert for Paras Enterprises' zero-maintenance hard water treatment solution. A user describes their water quality concerns. Explain the potential impact of these issues and how Paras Enterprises' natural vortex technology effectively addresses them without chemicals, salt, or electricity. User's concerns: ${waterInput.value}.`;
+                callGeminiAPI(prompt, waterOutput, waterSpinner);
+            });
+        });
+    </script>
+</body>
+</html>
